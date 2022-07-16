@@ -22,6 +22,12 @@ func PostSignIn(c *gin.Context) {
 	})
 }
 
+func DefaultSignUp(c *gin.Context) {
+	c.JSON(http.StatusMethodNotAllowed, gin.H{
+		"detail": "Method not allowed",
+	})
+}
+
 func PostSignUp(c *gin.Context) {
 	//
 	email := c.PostForm("email")
