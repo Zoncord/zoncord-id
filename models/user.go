@@ -7,8 +7,7 @@ import (
 var db *gorm.DB
 
 type User struct {
-	// general info
-	ID       uint64 `gorm:"primary_key" json:"id"`
+	gorm.Model
 	Email    string `json:"email"`
 	Password string `json:"password"`
 	// personal info
