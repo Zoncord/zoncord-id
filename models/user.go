@@ -1,6 +1,7 @@
 package models
 
 import (
+	"ZoncordID/services"
 	"github.com/jinzhu/gorm"
 )
 
@@ -33,4 +34,20 @@ func CheckAuth(email string, password string) (bool, error) {
 	}
 
 	return false, nil
+}
+
+func CreateUser(email string, password string, firstName string, lastName string) error {
+	// create user
+	var user User
+	// set information about user
+	user.Email = email
+	user.Password = services.PasswordHasher(password)
+	user.FirstName = firstName
+	user.LastName = lastName
+	user.IsActive = true
+	user.IsSuperUser = false
+
+	db.Create(&user)
+
+	return nil
 }
