@@ -1,9 +1,11 @@
 package handlers
 
 import (
+	"ZoncordID/models"
 	"ZoncordID/services"
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"log"
 	"net/http"
 )
 
@@ -16,9 +18,18 @@ func DefaultSignIn(c *gin.Context) {
 func PostSignIn(c *gin.Context) {
 	email := c.PostForm("email")
 	password := c.PostForm("password")
+	isActive, err := models.CheckAuth(email, password)
+	if err != nil {
+		log.Println(err)
+	}
+	if !isActive {
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"detail": "Invalid credentials",
+		})
+		return
+	}
 	c.JSON(http.StatusOK, gin.H{
-		"email":    email,
-		"password": password,
+		"message": "Successful Login",
 	})
 }
 
@@ -29,8 +40,7 @@ func DefaultSignUp(c *gin.Context) {
 }
 
 func PostSignUp(c *gin.Context) {
-	//
-	email := c.PostForm("email")
+	// create user
 	password1 := c.PostForm("password1")
 	password2 := c.PostForm("password2")
 	//
@@ -46,9 +56,13 @@ func PostSignUp(c *gin.Context) {
 			"detail": "Passwords do not match.",
 		})
 	}
-
+	err = models.CreateUser(c.PostForm("email"), password1, c.PostForm("first_name"), c.PostForm("last_name"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"detail": fmt.Errorf("email already exists"),
+		})
+	}
 	c.JSON(http.StatusOK, gin.H{
-		"email":    email,
-		"password": password1,
+		"message": "Successful Registration",
 	})
 }

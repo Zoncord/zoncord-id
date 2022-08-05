@@ -21,10 +21,10 @@ func InitRouters() *gin.Engine {
 		signup := v1.Group("/signup")
 		{
 			signup.POST("", handlers.PostSignUp)
-			signin.GET("", handlers.DefaultSignUp)
-			signin.PUT("", handlers.DefaultSignUp)
-			signin.DELETE("", handlers.DefaultSignUp)
-			signin.PATCH("", handlers.DefaultSignUp)
+			signup.GET("", handlers.DefaultSignUp)
+			signup.PUT("", handlers.DefaultSignUp)
+			signup.DELETE("", handlers.DefaultSignUp)
+			signup.PATCH("", handlers.DefaultSignUp)
 		}
 	}
 	return r
