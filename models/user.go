@@ -1,6 +1,7 @@
 package models
 
 import (
+	"ZoncordID/models/oauth2"
 	"ZoncordID/services"
 	"github.com/jinzhu/gorm"
 	"golang.org/x/crypto/bcrypt"
@@ -20,6 +21,9 @@ type User struct {
 	// auth info
 	IsActive    bool `json:"is_active"`
 	IsSuperUser bool `json:"is_superuser"`
+	// oauth2 info
+	Applications []oauth2.Application `json:"applications"`
+	AccessToken  oauth2.AccessToken   `json:"access_token"`
 }
 
 func CheckAuth(email string, password string) (bool, error) {
