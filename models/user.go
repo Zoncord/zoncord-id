@@ -22,8 +22,10 @@ type User struct {
 	IsActive    bool `json:"is_active"`
 	IsSuperUser bool `json:"is_superuser"`
 	// oauth2 info
-	Applications []oauth2.Application `json:"applications"`
-	AccessToken  oauth2.AccessToken   `json:"access_token"`
+	Applications  []oauth2.Application  `json:"applications"`
+	Grants        []oauth2.Grant        `json:"grants"`
+	AccessTokens  []oauth2.AccessToken  `json:"access_token"`
+	RefreshTokens []oauth2.RefreshToken `json:"refresh_token"`
 }
 
 func CheckAuth(email string, password string) (bool, error) {

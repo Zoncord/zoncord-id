@@ -4,10 +4,10 @@ import "github.com/jinzhu/gorm"
 
 type Application struct {
 	gorm.Model
-	ClientId     string `json:"client_id"`
+	ClientId     uint   `json:"client_id"`
 	ClientSecret string `json:"client_secret"`
 
-	UserID string `json:"user_id"`
+	UserID uint   `json:"user_id"`
 	Name   string `json:"name"`
 
 	RedirectUris           string `json:"redirect_uris"`
@@ -17,5 +17,7 @@ type Application struct {
 
 	SkipAuthorization bool `json:"skip_authorization"`
 
-	AccessTokens []AccessToken `json:"access_tokens"`
+	AccessTokens  []AccessToken  `json:"access_tokens"`
+	RefreshTokens []RefreshToken `json:"refresh_tokens"`
+	Grants        []Grant        `json:"grants"`
 }

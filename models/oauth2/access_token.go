@@ -7,9 +7,10 @@ import (
 
 type AccessToken struct {
 	gorm.Model
-	UserID             string      `json:"user_id"`
-	Token              string      `json:"token"`
-	Application        Application `json:"application"`
-	Expires            time.Time   `json:"expires"`
-	SourceRefreshToken string      `json:"source_refresh_token"`
+	UserID             uint         `json:"user_id"`
+	Token              string       `json:"token"`
+	ApplicationID      uint         `json:"application_id"`
+	Expires            time.Time    `json:"expires"`
+	SourceRefreshToken RefreshToken `json:"source_refresh_token"`
+	Scope              string       `json:"scope"`
 }

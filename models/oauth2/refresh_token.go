@@ -1,9 +1,15 @@
 package oauth2
 
-import "github.com/jinzhu/gorm"
+import (
+	"github.com/jinzhu/gorm"
+	"time"
+)
 
 type RefreshToken struct {
 	gorm.Model
-	UserID      string      `json:"user_id"`
-	Application Application `json:"application"`
+	UserID        uint      `json:"user_id"`
+	ApplicationID uint      `json:"application_id"`
+	Token         string    `json:"token"`
+	AccessTokenID uint      `json:"access_token"`
+	Revoked       time.Time `json:"revoked"`
 }
