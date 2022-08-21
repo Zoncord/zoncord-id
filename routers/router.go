@@ -1,7 +1,7 @@
 package routers
 
 import (
-	"ZoncordID/handlers"
+	"github.com/Zoncord/zoncord-id/handlers"
 	"github.com/gin-gonic/gin"
 )
 

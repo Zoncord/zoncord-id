@@ -1,9 +1,9 @@
 package handlers
 
 import (
-	"ZoncordID/models"
-	"ZoncordID/services"
 	"fmt"
+	"github.com/Zoncord/zoncord-id/models"
+	"github.com/Zoncord/zoncord-id/services"
 	"github.com/gin-gonic/gin"
 	"log"
 	"net/http"

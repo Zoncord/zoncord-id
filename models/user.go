@@ -1,10 +1,10 @@
 package models
 
 import (
-	"ZoncordID/models/oauth2"
-	"ZoncordID/services"
-	"github.com/jinzhu/gorm"
+	"github.com/Zoncord/zoncord-id/models/oauth2"
+	"github.com/Zoncord/zoncord-id/services"
 	"golang.org/x/crypto/bcrypt"
+	"gorm.io/gorm"
 )
 
 var db = GetDB()

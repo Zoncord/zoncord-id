@@ -9,7 +9,7 @@ var dbase *gorm.DB
 
 func InitDB() *gorm.DB {
 	// Init database
-	dsn := "host=localhost user=ZoncordAdmin password=ASF0o7z5 dbname=ZoncordID port=5432 sslmode=disable TimeZone=Asia/Shanghai"
+	dsn := "host=localhost user=ZoncordAdmin password=123 dbname=zoncord-id port=5432 sslmode=disable"
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
 		panic("failed to connect database")
