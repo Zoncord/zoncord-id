@@ -1,7 +1,6 @@
 package models
 
 import (
-	"github.com/Zoncord/zoncord-id/models/oauth2"
 	"github.com/Zoncord/zoncord-id/services"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
@@ -22,10 +21,10 @@ type User struct {
 	IsActive    bool `json:"is_active"`
 	IsSuperUser bool `json:"is_superuser"`
 	// oauth2 info
-	Applications  []oauth2.Application  `json:"applications"`
-	Grants        []oauth2.Grant        `json:"grants"`
-	AccessTokens  []oauth2.AccessToken  `json:"access_token"`
-	RefreshTokens []oauth2.RefreshToken `json:"refresh_token"`
+	Applications  []Application  `json:"applications"`
+	Grants        []Grant        `json:"grants"`
+	AccessTokens  []AccessToken  `json:"access_token"`
+	RefreshTokens []RefreshToken `json:"refresh_token"`
 }
 
 func CheckAuth(email string, password string) (bool, error) {
@@ -56,5 +55,7 @@ func CreateUser(email string, password string, firstName string, lastName string
 	user.IsActive = true
 	user.IsSuperUser = false
 	db.Create(&user)
+	user.FirstName = "123"
+	db.Save(&user)
 	return nil
 }

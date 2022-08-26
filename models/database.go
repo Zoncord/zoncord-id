@@ -1,19 +1,16 @@
 package models
 
 import (
-	"github.com/Zoncord/zoncord-id/models/oauth2"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"os"
 )
 
-var dbase *gorm.DB
-
 func MigrateModels(db *gorm.DB) {
 	// user models
 	db.AutoMigrate(&User{})
 	// oauth2 models
-	db.AutoMigrate(&oauth2.Application{}, &oauth2.Grant{}, &oauth2.RefreshToken{})
+	db.AutoMigrate(&Application{}, &Grant{}, &RefreshToken{})
 }
 
 func GetDSN() string {
@@ -42,6 +39,6 @@ func InitDB() *gorm.DB {
 }
 
 func GetDB() *gorm.DB {
-	dbase = InitDB()
-	return dbase
+	db := InitDB()
+	return db
 }
