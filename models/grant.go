@@ -1,7 +1,9 @@
 package models
 
 import (
+	"fmt"
 	"github.com/jinzhu/gorm"
+	"strings"
 	"time"
 )
 
@@ -15,12 +17,22 @@ type Grant struct {
 	Scope         string    `json:"scope"`
 }
 
-func CheckCode(code string, clientID string, clientSecret string, redirectURI string) error {
-	// TODO: проверка кода на валидность
-	return nil
-}
+func CheckCode(code string, clientID uint, clientSecret string, redirectURI string) error {
+	// validation of code
+	application, err := checkApplication(clientID, clientSecret)
+	if err != nil {
+		return err
+	}
+	var grant Grant
+	grant.Code = code
+	grant.ApplicationID = application.ID
+	err = db.First(&grant).Error
+	if err != nil {
+		return err
+	}
+	if strings.Contains(grant.RedirectUri, redirectURI) {
+		return fmt.Errorf("redirect_uri is not valid")
+	}
 
-func CheckRefreshToken(refreshToken string, clientID string, clientSecret string, redirectURI string) error {
-	// TODO: проверка кода на валидность
 	return nil
 }

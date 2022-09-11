@@ -21,3 +21,14 @@ type Application struct {
 	RefreshTokens []RefreshToken `json:"refresh_tokens"`
 	Grants        []Grant        `json:"grants"`
 }
+
+func checkApplication(clientID uint, clientSecret string) (Application, error) {
+	var application Application
+	application.ClientId = clientID
+	application.ClientSecret = clientSecret
+	err := db.First(&application).Error
+	if err != nil && err != gorm.ErrRecordNotFound {
+		return application, err
+	}
+	return application, nil
+}

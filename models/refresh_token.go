@@ -1,9 +1,11 @@
 package models
 
 import (
+	"fmt"
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/jinzhu/gorm"
 	"os"
+	"strings"
 	"time"
 )
 
@@ -14,6 +16,7 @@ type RefreshToken struct {
 	Token         string    `json:"token"`
 	AccessTokenID uint      `json:"access_token"`
 	Revoked       time.Time `json:"revoked"`
+	RedirectUri   string    `json:"redirect_uri"`
 }
 
 func CreateRefreshToken(userID uint, applicationID uint, accessTokenID uint) (RefreshToken, error) {
@@ -36,4 +39,24 @@ func CreateRefreshToken(userID uint, applicationID uint, accessTokenID uint) (Re
 	}
 	err = db.Create(&refreshToken).Error
 	return refreshToken, err
+}
+
+func CheckRefreshToken(Token string, clientID uint, clientSecret string, redirectURI string) error {
+	// TODO: проверка кода на валидность
+	application, err := checkApplication(clientID, clientSecret)
+	if err != nil {
+		return err
+	}
+	var refreshToken RefreshToken
+	refreshToken.Token = Token
+	refreshToken.ApplicationID = application.ID
+	err = db.First(&refreshToken).Error
+	if err != nil {
+		return err
+	}
+	if strings.Contains(refreshToken.RedirectUri, redirectURI) {
+		return fmt.Errorf("redirect_uri is not valid")
+	}
+
+	return nil
 }
