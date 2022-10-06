@@ -16,12 +16,12 @@ func MigrateModels(db *gorm.DB) {
 func GetDSN() string {
 	// get Data Source Name
 	var dsn string
-	dsn += "host=" + os.Getenv("DB_HOST") + " "
-	dsn += "user=" + os.Getenv("DB_USER") + " "
-	dsn += "password=" + os.Getenv("DB_PASSWORD") + " "
-	dsn += "dbname=" + os.Getenv("DB_NAME") + " "
-	dsn += "port=" + os.Getenv("DB_PORT") + " "
-	dsn += "sslmode=" + os.Getenv("DB_SSL_MODE") + " "
+	dsn += "host=" + os.Getenv("SQL_HOST") + " "
+	dsn += "user=" + os.Getenv("SQL_USER") + " "
+	dsn += "password=" + os.Getenv("SQL_PASSWORD") + " "
+	dsn += "dbname=" + os.Getenv("SQL_DATABASE") + " "
+	dsn += "port=" + os.Getenv("SQL_PORT") + " "
+	dsn += "sslmode=" + os.Getenv("SQL_SSL_MODE") + " "
 	return dsn
 }
 

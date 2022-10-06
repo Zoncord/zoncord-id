@@ -1,6 +1,7 @@
 package models
 
 import (
+	"github.com/Zoncord/zoncord-id/errors"
 	"github.com/Zoncord/zoncord-id/services"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
@@ -27,23 +28,23 @@ type User struct {
 	RefreshTokens []RefreshToken `json:"refresh_token"`
 }
 
-func CheckAuth(email string, password string) (bool, error) {
+func CheckAuth(email string, password string) error {
 	var user User
 	err := db.First(&user, "email = ?", email).Error
-	if err != nil && err != gorm.ErrRecordNotFound {
-		return false, err
+	if err == gorm.ErrRecordNotFound {
+		return errors.InvalidEmailOrPassword
+	}
+
+	if err != nil {
+		return errors.DatabaseNotAvailable
 	}
 
 	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password))
 	if err != nil {
-		return false, err
+		return errors.InvalidEmailOrPassword
 	}
 
-	if user.ID > 0 {
-		return true, nil
-	}
-
-	return false, nil
+	return nil
 }
 
 func CreateUser(email string, password string, firstName string, lastName string) error {

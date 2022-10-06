@@ -2,10 +2,10 @@ package handlers
 
 import (
 	"fmt"
+	"github.com/Zoncord/zoncord-id/errors"
 	"github.com/Zoncord/zoncord-id/models"
 	"github.com/Zoncord/zoncord-id/services"
 	"github.com/gin-gonic/gin"
-	"log"
 	"net/http"
 )
 
@@ -18,11 +18,14 @@ func DefaultSignIn(c *gin.Context) {
 func PostSignIn(c *gin.Context) {
 	email := c.PostForm("email")
 	password := c.PostForm("password")
-	isActive, err := models.CheckAuth(email, password)
-	if err != nil {
-		log.Println(err)
+	err := models.CheckAuth(email, password)
+	if err == errors.DatabaseNotAvailable {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"detail": "Something happened to us, we are already working on it",
+		})
+		return
 	}
-	if !isActive {
+	if err == errors.InvalidEmailOrPassword {
 		c.JSON(http.StatusUnauthorized, gin.H{
 			"detail": "Invalid credentials",
 		})
