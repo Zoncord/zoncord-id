@@ -28,11 +28,16 @@ func CreateAccessToken(userID uint, applicationID uint, scope string) (AccessTok
 	// Sign and get the complete encoded token as a string using the secret
 	hmacSampleSecret := os.Getenv("JWT_SECRET")
 	tokenString, err := token.SignedString(hmacSampleSecret)
+	timeToExpire := time.Now().Add(time.Hour * 24)
+	// The expiration time increases since id 0 is the master application
+	if applicationID == 0 {
+		timeToExpire = time.Now().Add(time.Hour * 8760)
+	}
 	accessToken := AccessToken{
 		UserID:        userID,
 		Token:         tokenString,
 		ApplicationID: applicationID,
-		Expires:       time.Now().Add(time.Hour * 24),
+		Expires:       timeToExpire,
 		Scope:         scope,
 	}
 	err = db.Create(&accessToken).Error

@@ -11,21 +11,22 @@ func InitRouters() *gin.Engine {
 	{
 		signin := v1.Group("/signin")
 		{
-			signin.GET("", handlers.DefaultSignIn)
+			signin.GET("", handlers.MethodNotAllowed)
 			signin.POST("", handlers.PostSignIn)
-			signin.PUT("", handlers.DefaultSignIn)
-			signin.DELETE("", handlers.DefaultSignIn)
-			signin.PATCH("", handlers.DefaultSignIn)
+			signin.PUT("", handlers.MethodNotAllowed)
+			signin.DELETE("", handlers.MethodNotAllowed)
+			signin.PATCH("", handlers.MethodNotAllowed)
 		}
 
 		signup := v1.Group("/signup")
 		{
 			signup.POST("", handlers.PostSignUp)
-			signup.GET("", handlers.DefaultSignUp)
-			signup.PUT("", handlers.DefaultSignUp)
-			signup.DELETE("", handlers.DefaultSignUp)
-			signup.PATCH("", handlers.DefaultSignUp)
+			signup.GET("", handlers.MethodNotAllowed)
+			signup.PUT("", handlers.MethodNotAllowed)
+			signup.DELETE("", handlers.MethodNotAllowed)
+			signup.PATCH("", handlers.MethodNotAllowed)
 		}
+
 	}
 	return r
 }

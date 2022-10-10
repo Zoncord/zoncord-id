@@ -28,26 +28,26 @@ type User struct {
 	RefreshTokens []RefreshToken `json:"refresh_token"`
 }
 
-func CheckAuth(email string, password string) error {
+func CheckAuth(email string, password string) (User, error) {
 	var user User
 	err := db.First(&user, "email = ?", email).Error
 	if err == gorm.ErrRecordNotFound {
-		return errors.InvalidEmailOrPassword
+		return user, errors.InvalidEmailOrPassword
 	}
 
 	if err != nil {
-		return errors.DatabaseNotAvailable
+		return user, errors.DatabaseNotAvailable
 	}
 
 	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password))
 	if err != nil {
-		return errors.InvalidEmailOrPassword
+		return user, errors.InvalidEmailOrPassword
 	}
 
-	return nil
+	return user, nil
 }
 
-func CreateUser(email string, password string, firstName string, lastName string) error {
+func CreateUser(email string, password string, firstName string, lastName string) (User, error) {
 	var user User
 	user.Email = email
 	user.Password = services.PasswordHasher(password)
@@ -56,7 +56,23 @@ func CreateUser(email string, password string, firstName string, lastName string
 	user.IsActive = true
 	user.IsSuperUser = false
 	db.Create(&user)
-	user.FirstName = "123"
 	db.Save(&user)
-	return nil
+	return user, nil
+}
+
+func GetUserByToken(token string) (User, error) {
+	var user User
+	var accessToken AccessToken
+	err := db.First(&accessToken, "token = ?", token).Error
+	if err == gorm.ErrRecordNotFound {
+		return user, errors.InvalidToken
+	}
+	if err != nil {
+		return user, errors.DatabaseNotAvailable
+	}
+	err = db.First(&user, "id = ?", accessToken.UserID).Error
+	if err != nil {
+		return user, err
+	}
+	return user, nil
 }
