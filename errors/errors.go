@@ -8,4 +8,6 @@ var (
 	InvalidEmailOrPassword = fmt.Errorf("invalid login or password")
 	DatabaseNotAvailable   = fmt.Errorf("database is not available")
 	InvalidToken           = fmt.Errorf("invalid token")
+	PasswordTooShort       = fmt.Errorf("password is too short")
+	PasswordTooLong        = fmt.Errorf("password is too long")
 )

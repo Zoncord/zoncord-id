@@ -2,16 +2,17 @@ package services
 
 import (
 	"fmt"
+	"github.com/Zoncord/zoncord-id/errors"
 	"golang.org/x/crypto/bcrypt"
 )
 
 func PasswordComplexityCheck(password string) error {
 	// Password complexity check function
 	if len(password) < 8 {
-		// Password is too short
+		return errors.PasswordTooShort
 	}
 	if len(password) > 64 {
-		// Password is too long
+		return errors.PasswordTooLong
 	}
 	return nil
 }
