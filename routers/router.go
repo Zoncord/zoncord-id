@@ -30,10 +30,10 @@ func InitRouters() *gin.Engine {
 		user := v1.Group("/user")
 		{
 			user.GET("", handlers.GetCurrentUserData)
-			signup.POST("", handlers.MethodNotAllowed)
-			signup.PUT("", handlers.MethodNotAllowed)
-			signup.DELETE("", handlers.MethodNotAllowed)
-			signup.PATCH("", handlers.MethodNotAllowed)
+			user.POST("", handlers.MethodNotAllowed)
+			user.PUT("", handlers.MethodNotAllowed)
+			user.DELETE("", handlers.MethodNotAllowed)
+			user.PATCH("", handlers.MethodNotAllowed)
 		}
 	}
 	return r
