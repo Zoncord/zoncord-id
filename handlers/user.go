@@ -25,8 +25,7 @@ func PostSignIn(c *gin.Context) {
 		})
 		return
 	}
-	// TODO take an existing token if it exists
-	token, err := models.CreateAccessToken(user.ID, 0, "read write")
+	token, err := models.CreateAccessToken(user, 0, "read write")
 	c.JSON(http.StatusOK, gin.H{
 		"message": "Successful Login",
 		"token":   token.Token,
@@ -34,10 +33,8 @@ func PostSignIn(c *gin.Context) {
 }
 
 func PostSignUp(c *gin.Context) {
-	// create user
 	password1 := c.PostForm("password1")
 	password2 := c.PostForm("password2")
-	//
 	err := services.PasswordComplexityCheck(password1)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -56,7 +53,7 @@ func PostSignUp(c *gin.Context) {
 			"detail": fmt.Errorf("email already exists"),
 		})
 	}
-	token, err := models.CreateAccessToken(user.ID, 0, "read write")
+	token, err := models.CreateAccessToken(user, 0, "read write")
 	c.JSON(http.StatusOK, gin.H{
 		"message": "Successful Registration",
 		"token":   token.Token,
@@ -64,5 +61,24 @@ func PostSignUp(c *gin.Context) {
 }
 
 func GetCurrentUserData(c *gin.Context) {
-
+	token := c.GetHeader("Authorization")
+	user, err := models.GetUserByToken(token)
+	if err == errors.DatabaseNotAvailable {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"detail": "Something happened to us, we are already working on it",
+		})
+		return
+	}
+	if err == errors.InvalidToken {
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"detail": "Invalid token",
+		})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"id":         user.ID,
+		"email":      user.Email,
+		"first_name": user.FirstName,
+		"last_name":  user.LastName,
+	})
 }

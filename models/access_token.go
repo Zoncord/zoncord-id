@@ -17,31 +17,33 @@ type AccessToken struct {
 	Scope              string       `json:"scope"`
 }
 
-func CreateAccessToken(userID uint, applicationID uint, scope string) (AccessToken, error) {
+func CreateAccessToken(user User, applicationID uint, scope string) (AccessToken, error) {
 	// TODO проверка на валидность параметров
 
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"user_id": userID,
-		"expires": time.Now().Unix() + 86400,
-	})
-
-	// Sign and get the complete encoded token as a string using the secret
-	hmacSampleSecret := os.Getenv("JWT_SECRET")
-	tokenString, err := token.SignedString(hmacSampleSecret)
 	timeToExpire := time.Now().Add(time.Hour * 24)
 	// The expiration time increases since id 0 is the master application
 	if applicationID == 0 {
 		timeToExpire = time.Now().Add(time.Hour * 8760)
 	}
+
+	// generate token
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"user_id": user.ID,
+		"expires": timeToExpire.Unix(),
+	})
+
+	// Sign and get the complete encoded token as a string using the secret
+	hmacSampleSecret := os.Getenv("JWT_SECRET")
+	tokenString, err := token.SignedString(hmacSampleSecret)
 	accessToken := AccessToken{
-		UserID:        userID,
+		UserID:        user.ID,
 		Token:         tokenString,
 		ApplicationID: applicationID,
 		Expires:       timeToExpire,
 		Scope:         scope,
 	}
 	err = db.Create(&accessToken).Error
-	accessToken.SourceRefreshToken, err = CreateRefreshToken(userID, applicationID, accessToken.ID)
+	accessToken.SourceRefreshToken, err = CreateRefreshToken(user.ID, applicationID, accessToken.ID)
 	err = db.Save(&accessToken).Error
 	return accessToken, err
 }
