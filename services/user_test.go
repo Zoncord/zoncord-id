@@ -1,6 +1,7 @@
 package services
 
 import (
+	"github.com/Zoncord/zoncord-id/errors"
 	"math/rand"
 	"os"
 	"testing"
@@ -51,12 +52,12 @@ func TestCreateTestPassword(t *testing.T) {
 // checking tests for passwordComplexity function
 func TestPasswordLengthValidation(t *testing.T) {
 	var tests = []testOnePassword{
-		{createTestPassword(0), "password is too short"},
-		{createTestPassword(9), "password is too short"},
+		{createTestPassword(0), errors.PasswordTooShort.Error()},
+		{createTestPassword(9), errors.PasswordTooShort.Error()},
 		{createTestPassword(10), ""},
 		{createTestPassword(64), ""},
-		{createTestPassword(65), "password is too long"},
-		{createTestPassword(100), "password is too long"},
+		{createTestPassword(65), errors.PasswordTooLong.Error()},
+		{createTestPassword(100), errors.PasswordTooLong.Error()},
 	}
 	for _, test := range tests {
 		output := PasswordLengthValidation(test.password)
@@ -75,7 +76,7 @@ func TestPasswordLengthValidation(t *testing.T) {
 func TestPasswordEquivalencyValidation(t *testing.T) {
 	var tests = []testTwoPasswords{
 		{"asdf", "asdf", ""},
-		{"a", "asdf", "passwords don't match"},
+		{"a", "asdf", errors.PasswordsDontMatch.Error()},
 	}
 	for _, test := range tests {
 		output := PasswordEquivalencyValidation(test.password1, test.password2)
@@ -95,10 +96,10 @@ func TestPasswordEquivalencyValidation(t *testing.T) {
 func TestPasswordValidation(t *testing.T) {
 	longPassword := createTestPassword(65)
 	var tests = []testTwoPasswords{
-		{"a", "asdf", "passwords don't match"},
-		{"asdf", "asdf", "password is too short"},
-		{longPassword, longPassword, "password is too long"},
-		{"asdfasdfasdf", "asdfasdfasdf", "password must include number"},
+		{"a", "asdf", errors.PasswordsDontMatch.Error()},
+		{"asdf", "asdf", errors.PasswordTooShort.Error()},
+		{longPassword, longPassword, errors.PasswordTooLong.Error()},
+		{"asdfasdfasdf", "asdfasdfasdf", errors.PasswordMustIncludeNumber.Error()},
 		{"asdfasdfasdf1", "asdfasdfasdf1", ""},
 	}
 

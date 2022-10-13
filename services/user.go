@@ -1,7 +1,6 @@
 package services
 
 import (
-	"fmt"
 	"github.com/Zoncord/zoncord-id/errors"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -12,7 +11,7 @@ func PasswordNumberValidation(password string) error {
 			return nil
 		}
 	}
-	return fmt.Errorf("password must include number")
+	return errors.PasswordMustIncludeNumber
 }
 
 const PasswordMinLength int = 10
@@ -30,7 +29,7 @@ func PasswordLengthValidation(password string) error {
 
 func PasswordEquivalencyValidation(password1 string, password2 string) error {
 	if password1 != password2 {
-		return fmt.Errorf("passwords don't match")
+		return errors.PasswordsDontMatch
 	}
 	return nil
 }
