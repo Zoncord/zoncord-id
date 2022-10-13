@@ -29,7 +29,7 @@ func createPassword(length int) string {
 	return password
 }
 
-func TestGetPassword(t *testing.T) {
+func TestCreatePassword(t *testing.T) {
 	rand.Seed(time.Now().UnixNano())
 	passwordLength := rand.Intn(100)
 	password := createPassword(passwordLength)
