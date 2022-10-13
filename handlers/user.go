@@ -35,7 +35,7 @@ func PostSignIn(c *gin.Context) {
 func PostSignUp(c *gin.Context) {
 	password1 := c.PostForm("password1")
 	password2 := c.PostForm("password2")
-	err := services.PasswordComplexityCheck(password1)
+	err := services.PasswordLengthValidation(password1)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"detail": fmt.Errorf("password is too short or too long"),

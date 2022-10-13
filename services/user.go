@@ -6,23 +6,50 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-func PasswordComplexityCheck(password string) error {
-	// Password complexity check function
-	if len(password) < 8 {
+func PasswordNumberValidation(password string) error {
+	for _, letter := range password {
+		if rune('0') <= letter && letter <= rune('9') {
+			return nil
+		}
+	}
+	return fmt.Errorf("password must include number")
+}
+
+const PasswordMinLength int = 10
+const PasswordMaxLength int = 64
+
+func PasswordLengthValidation(password string) error {
+	if len(password) < PasswordMinLength {
 		return errors.PasswordTooShort
 	}
-	if len(password) > 64 {
+	if len(password) > PasswordMaxLength {
 		return errors.PasswordTooLong
 	}
 	return nil
 }
 
-func PasswordValidation(password1 string, password2 string) (bool, error) {
-	// Password validation function
+func PasswordEquivalencyValidation(password1 string, password2 string) error {
 	if password1 != password2 {
-		return false, fmt.Errorf("passwords do not match")
+		return fmt.Errorf("passwords don't match")
 	}
-	return true, nil
+	return nil
+}
+
+func PasswordsValidation(password1 string, password2 string) error {
+	// Password validation function
+	err := PasswordEquivalencyValidation(password1, password2)
+	if err != nil {
+		return err
+	}
+	err = PasswordLengthValidation(password1)
+	if err != nil {
+		return err
+	}
+	err = PasswordNumberValidation(password1)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func PasswordHasher(password string) string {

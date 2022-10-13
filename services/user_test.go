@@ -2,12 +2,22 @@ package services
 
 import (
 	"math/rand"
+	"os"
 	"testing"
 	"time"
 )
 
-type testPasswordComplexityCheck struct {
+type testOnePassword struct {
 	password, expected string
+}
+
+type testTwoPasswords struct {
+	password1, password2, expected string
+}
+
+func TestMain(m *testing.M) {
+	rand.Seed(time.Now().UnixNano())
+	os.Exit(m.Run())
 }
 
 // creating array with english letters
@@ -21,7 +31,6 @@ func getEngLetters() [26]string {
 
 // creating random password with given length
 func createTestPassword(length int) string {
-	rand.Seed(time.Now().UnixNano())
 	password := ""
 	letters := getEngLetters()
 	for i := 0; i < length; i++ {
@@ -32,110 +41,77 @@ func createTestPassword(length int) string {
 
 // test for createTestPassword function
 func TestCreateTestPassword(t *testing.T) {
-	rand.Seed(time.Now().UnixNano())
 	passwordLength := rand.Intn(100)
 	password := createTestPassword(passwordLength)
-	for i := 0; i < 10; i++ {
-		if len([]rune(password)) != passwordLength {
-			t.Error("Length given to createTestPassword function and returned string length doesnt match")
-		}
+	if len([]rune(password)) != passwordLength {
+		t.Error("Length given to createTestPassword function and returned string length doesnt match")
 	}
-}
-
-// tests for passwordComplexity function
-var testsPasswordComplexityCheckData = []testPasswordComplexityCheck{
-	{createTestPassword(0), "password is too short"},
-	{createTestPassword(1), "password is too short"},
-	{createTestPassword(8), ""},
-	{createTestPassword(40), ""},
-	{createTestPassword(64), ""},
-	{createTestPassword(66), "password is too long"},
-	{createTestPassword(100), "password is too long"},
 }
 
 // checking tests for passwordComplexity function
-func TestPasswordComplexityCheck(t *testing.T) {
-	for _, test := range testsPasswordComplexityCheckData {
-		output := PasswordComplexityCheck(test.password)
-		var errorMessage string
+func TestPasswordLengthValidation(t *testing.T) {
+	var tests = []testOnePassword{
+		{createTestPassword(0), "password is too short"},
+		{createTestPassword(9), "password is too short"},
+		{createTestPassword(10), ""},
+		{createTestPassword(64), ""},
+		{createTestPassword(65), "password is too long"},
+		{createTestPassword(100), "password is too long"},
+	}
+	for _, test := range tests {
+		output := PasswordLengthValidation(test.password)
 		if output == nil {
-			errorMessage = ""
-		} else {
-			errorMessage = output.Error()
+			if test.expected != "" {
+				t.Errorf("Got: nil error\nExpected: %s", test.expected)
+			}
+			continue
 		}
-		if errorMessage != test.expected {
-			t.Errorf("Password complexity check doesn't work right\nGiven: '%s', expected: '%s', got: '%s'", test.password, test.expected, errorMessage)
+		if output.Error() != test.expected {
+			t.Errorf("Got: %s\nExpected: %s", output.Error(), test.expected)
 		}
 	}
 }
 
-// test structure
-type testPasswordValidation struct {
-	password1, password2 string
-	expectedBool         bool
-	expectedErr          string
-}
-
-// array with tests for passwordValidation function
-var testsPasswordValidation []testPasswordValidation
-
-// tests with non-equal length passwords
-func prepareNonEqualLengthPasswordsTestsPasswordValidation() {
-	for i := 0; i < 10; i++ {
-		password1 := createTestPassword(10)
-		password2 := createTestPassword(8)
-		var test testPasswordValidation = testPasswordValidation{
-			password1,
-			password2,
-			false,
-			"passwords do not match",
-		}
-		testsPasswordValidation = append(testsPasswordValidation, test)
+func TestPasswordEquivalencyValidation(t *testing.T) {
+	var tests = []testTwoPasswords{
+		{"asdf", "asdf", ""},
+		{"a", "asdf", "passwords don't match"},
 	}
-}
-
-// tests with doesn't match passwords
-func prepareDoesntMatchPasswordsTestsPasswordValidation() {
-	for i := 0; i < 10; i++ {
-		password1 := createTestPassword(9) + "a"
-		password2 := createTestPassword(9) + "b"
-		var test testPasswordValidation = testPasswordValidation{
-			password1,
-			password2,
-			false,
-			"passwords do not match",
+	for _, test := range tests {
+		output := PasswordEquivalencyValidation(test.password1, test.password2)
+		if output == nil {
+			if test.expected != "" {
+				t.Errorf("Got: nil error\nExpected: %s", test.expected)
+			}
+			continue
 		}
-		testsPasswordValidation = append(testsPasswordValidation, test)
-	}
-}
-
-// tests with equal passwords
-func prepareMatchPasswordsTestsPasswordValidation() {
-	for i := 0; i < 10; i++ {
-		password := createTestPassword(10)
-		var test testPasswordValidation = testPasswordValidation{
-			password,
-			password,
-			true,
-			"",
+		if output.Error() != test.expected {
+			t.Errorf("Got: %s\nExpected: %s", output.Error(), test.expected)
 		}
-		testsPasswordValidation = append(testsPasswordValidation, test)
 	}
 }
 
 // testing passwordValidation function
 func TestPasswordValidation(t *testing.T) {
-	prepareNonEqualLengthPasswordsTestsPasswordValidation()
-	prepareDoesntMatchPasswordsTestsPasswordValidation()
-	prepareMatchPasswordsTestsPasswordValidation()
+	longPassword := createTestPassword(65)
+	var tests = []testTwoPasswords{
+		{"a", "asdf", "passwords don't match"},
+		{"asdf", "asdf", "password is too short"},
+		{longPassword, longPassword, "password is too long"},
+		{"asdfasdfasdf", "asdfasdfasdf", "password must include number"},
+		{"asdfasdfasdf1", "asdfasdfasdf1", ""},
+	}
 
-	for _, test := range testsPasswordValidation {
-		isEqual, err := PasswordValidation(test.password1, test.password2)
-		if !isEqual && err == nil || isEqual && err != nil {
-			t.Error("Returned values doesnt match")
+	for _, test := range tests {
+		output := PasswordsValidation(test.password1, test.password2)
+		if output == nil {
+			if test.expected != "" {
+				t.Errorf("\nGot: nil error\nExpected: %s", test.expected)
+			}
+			continue
 		}
-		if (err == nil && test.expectedErr != "") || (err != nil && err.Error() != test.expectedErr) {
-			t.Error("Returned error doesnt match to expected error")
+		if output.Error() != test.expected {
+			t.Errorf("\nGot: %s\nExpected: %s", output.Error(), test.expected)
 		}
 	}
 }
