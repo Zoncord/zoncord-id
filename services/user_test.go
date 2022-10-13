@@ -3,6 +3,7 @@ package services
 import (
 	"math/rand"
 	"testing"
+	"time"
 )
 
 type testPasswordComplexityTest struct {
@@ -29,6 +30,7 @@ func createPassword(length int) string {
 }
 
 func TestGetPassword(t *testing.T) {
+	rand.Seed(time.Now().UnixNano())
 	passwordLength := rand.Intn(100)
 	password := createPassword(passwordLength)
 	for i := 0; i < 10; i++ {
