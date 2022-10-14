@@ -64,20 +64,20 @@ func TestPasswordLengthValidation(t *testing.T) {
 	for _, test := range tests {
 		output := PasswordLengthValidation(test.password)
 		if output != test.expected {
-			t.Errorf("\nGot: %v\nExpected: %v", output.Error(), test.expected)
+			t.Errorf("\nGot: %v\nExpected: %v", output, test.expected)
 		}
 	}
 }
 
-func TestPasswordEquivalencyValidation(t *testing.T) {
+func TestPasswordsEquivalencyValidation(t *testing.T) {
 	var tests = []testTwoPasswords{
 		{"asdf", "asdf", nil},
 		{"a", "asdf", errors.PasswordsDontMatch},
 	}
 	for _, test := range tests {
-		output := PasswordEquivalencyValidation(test.password1, test.password2)
+		output := PasswordsEquivalencyValidation(test.password1, test.password2)
 		if output != test.expected {
-			t.Errorf("\nGot: %v\nExpected: %v", output.Error(), test.expected)
+			t.Errorf("\nGot: %v\nExpected: %v", output, test.expected)
 		}
 	}
 }
@@ -96,7 +96,34 @@ func TestPasswordValidation(t *testing.T) {
 	for _, test := range tests {
 		output := PasswordsValidation(test.password1, test.password2)
 		if output != test.expected {
-			t.Errorf("\nGot: %v\nExpected: %v", output.Error(), test.expected)
+			t.Errorf("\nGot: %v\nExpected: %v", output, test.expected)
+		}
+	}
+}
+
+type testEmail struct {
+	email    string
+	expected error
+}
+
+func TestEmailValidation(t *testing.T) {
+	var tests = []testEmail{
+		{"", errors.InvalidEmailFormat},
+		{"asdf", errors.InvalidEmailFormat},
+		{"asdfasdf@", errors.InvalidEmailFormat},
+		{"asdfasdf@asdfsafd", errors.InvalidEmailFormat},
+		{"asdfasdf@asdfsafd.", errors.InvalidEmailFormat},
+		{"asdfasdf@asdfsafd.a", errors.InvalidEmailFormat},
+		{"asdfasdf@asdfasfd.asdf", nil},
+		{"asdf-asdf@asdfasfd.asdf", nil},
+		{"asdf_asdf@asdfasfd.asdf", nil},
+		{"asdfasdf@asdf.asfd.asdf", nil},
+		{"asdf.asdf@asdf.asfd.asdf", nil},
+	}
+	for _, test := range tests {
+		output := EmailValidation(test.email)
+		if output != test.expected {
+			t.Errorf("\nEmail: %s\nGot: %v\nExpected: %v", test.email, output, test.expected)
 		}
 	}
 }

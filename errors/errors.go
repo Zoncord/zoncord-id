@@ -12,4 +12,7 @@ var (
 	PasswordTooLong           = fmt.Errorf("password is too long")
 	PasswordsDontMatch        = fmt.Errorf("passwords don't match")
 	PasswordMustIncludeNumber = fmt.Errorf("password must include number")
+	InvalidEmailFormat        = fmt.Errorf("invalid email format")
+	RequiredValue             = fmt.Errorf("this value is required")
+	SpacesForbidden           = fmt.Errorf("spaces are forbidden in this value")
 )

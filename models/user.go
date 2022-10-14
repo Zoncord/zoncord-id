@@ -3,6 +3,7 @@ package models
 import (
 	"github.com/Zoncord/zoncord-id/errors"
 	"github.com/Zoncord/zoncord-id/services"
+	"github.com/Zoncord/zoncord-id/validation"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )
@@ -47,17 +48,28 @@ func CheckAuth(email string, password string) (User, error) {
 	return user, nil
 }
 
-func CreateUser(email string, password string, firstName string, lastName string) (User, error) {
-	var user User
-	user.Email = email
-	user.Password = services.PasswordHasher(password)
-	user.FirstName = firstName
-	user.LastName = lastName
-	user.IsActive = true
-	user.IsSuperUser = false
-	db.Create(&user)
-	db.Save(&user)
-	return user, nil
+func (u *User) Create(email string, password string, firstName string, lastName string) error {
+	err := services.EmailValidation(email)
+	if err != nil {
+		return err
+	}
+	u.Email = email
+	err = services.PasswordValidation(password)
+	if err != nil {
+		return err
+	}
+	u.Password = password
+	err = validation.Validate(firstName, validation.SimpleValidation)
+	if err != nil {
+		return err
+	}
+	u.FirstName = firstName
+	err = validation.Validate(lastName, validation.SimpleValidation)
+	if err != nil {
+		return err
+	}
+	u.LastName = lastName
+	return nil
 }
 
 func GetUserByToken(token string) (User, error) {
