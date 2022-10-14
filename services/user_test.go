@@ -9,11 +9,13 @@ import (
 )
 
 type testOnePassword struct {
-	password, expected string
+	password string
+	expected error
 }
 
 type testTwoPasswords struct {
-	password1, password2, expected string
+	password1, password2 string
+	expected             error
 }
 
 func TestMain(m *testing.M) {
@@ -52,42 +54,30 @@ func TestCreateTestPassword(t *testing.T) {
 // checking tests for passwordComplexity function
 func TestPasswordLengthValidation(t *testing.T) {
 	var tests = []testOnePassword{
-		{createTestPassword(0), errors.PasswordTooShort.Error()},
-		{createTestPassword(9), errors.PasswordTooShort.Error()},
-		{createTestPassword(10), ""},
-		{createTestPassword(64), ""},
-		{createTestPassword(65), errors.PasswordTooLong.Error()},
-		{createTestPassword(100), errors.PasswordTooLong.Error()},
+		{createTestPassword(0), errors.PasswordTooShort},
+		{createTestPassword(9), errors.PasswordTooShort},
+		{createTestPassword(10), nil},
+		{createTestPassword(64), nil},
+		{createTestPassword(65), errors.PasswordTooLong},
+		{createTestPassword(100), errors.PasswordTooLong},
 	}
 	for _, test := range tests {
 		output := PasswordLengthValidation(test.password)
-		if output == nil {
-			if test.expected != "" {
-				t.Errorf("Got: nil error\nExpected: %s", test.expected)
-			}
-			continue
-		}
-		if output.Error() != test.expected {
-			t.Errorf("Got: %s\nExpected: %s", output.Error(), test.expected)
+		if output != test.expected {
+			t.Errorf("\nGot: %v\nExpected: %v", output.Error(), test.expected)
 		}
 	}
 }
 
 func TestPasswordEquivalencyValidation(t *testing.T) {
 	var tests = []testTwoPasswords{
-		{"asdf", "asdf", ""},
-		{"a", "asdf", errors.PasswordsDontMatch.Error()},
+		{"asdf", "asdf", nil},
+		{"a", "asdf", errors.PasswordsDontMatch},
 	}
 	for _, test := range tests {
 		output := PasswordEquivalencyValidation(test.password1, test.password2)
-		if output == nil {
-			if test.expected != "" {
-				t.Errorf("Got: nil error\nExpected: %s", test.expected)
-			}
-			continue
-		}
-		if output.Error() != test.expected {
-			t.Errorf("Got: %s\nExpected: %s", output.Error(), test.expected)
+		if output != test.expected {
+			t.Errorf("\nGot: %v\nExpected: %v", output.Error(), test.expected)
 		}
 	}
 }
@@ -96,23 +86,17 @@ func TestPasswordEquivalencyValidation(t *testing.T) {
 func TestPasswordValidation(t *testing.T) {
 	longPassword := createTestPassword(65)
 	var tests = []testTwoPasswords{
-		{"a", "asdf", errors.PasswordsDontMatch.Error()},
-		{"asdf", "asdf", errors.PasswordTooShort.Error()},
-		{longPassword, longPassword, errors.PasswordTooLong.Error()},
-		{"asdfasdfasdf", "asdfasdfasdf", errors.PasswordMustIncludeNumber.Error()},
-		{"asdfasdfasdf1", "asdfasdfasdf1", ""},
+		{"a", "asdf", errors.PasswordsDontMatch},
+		{"asdf", "asdf", errors.PasswordTooShort},
+		{longPassword, longPassword, errors.PasswordTooLong},
+		{"asdfasdfasdf", "asdfasdfasdf", errors.PasswordMustIncludeNumber},
+		{"asdfasdfasdf1", "asdfasdfasdf1", nil},
 	}
 
 	for _, test := range tests {
 		output := PasswordsValidation(test.password1, test.password2)
-		if output == nil {
-			if test.expected != "" {
-				t.Errorf("\nGot: nil error\nExpected: %s", test.expected)
-			}
-			continue
-		}
-		if output.Error() != test.expected {
-			t.Errorf("\nGot: %s\nExpected: %s", output.Error(), test.expected)
+		if output != test.expected {
+			t.Errorf("\nGot: %v\nExpected: %v", output.Error(), test.expected)
 		}
 	}
 }
