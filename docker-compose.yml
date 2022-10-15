@@ -1,0 +1,24 @@
+version: '3.3'
+
+services:
+  db:
+    image: postgres
+    volumes:
+      - ./data/db:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=zoncord-id
+      - POSTGRES_USER=ZoncordAdmin
+      - POSTGRES_PASSWORD=1
+  zoncord-id:
+    image: zoncord.azurecr.io/zoncord-id
+    restart: always
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: go run main.go
+    expose:
+      - 8080
+    env_file:
+      - ./.env
+    depends_on:
+      - db
