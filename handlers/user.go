@@ -1,9 +1,8 @@
 package handlers
 
 import (
-	"github.com/Zoncord/zoncord-id/errors"
 	"github.com/Zoncord/zoncord-id/models"
-	"github.com/Zoncord/zoncord-id/services"
+	"github.com/Zoncord/zoncord-id/validation"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
@@ -12,13 +11,13 @@ func PostSignIn(c *gin.Context) {
 	email := c.PostForm("email")
 	password := c.PostForm("password")
 	user, err := models.CheckAuth(email, password)
-	if err == errors.DatabaseNotAvailable {
+	if err == models.DatabaseNotAvailable {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"detail": "Something happened to us, we are already working on it",
 		})
 		return
 	}
-	if err == errors.InvalidEmailOrPassword {
+	if err == models.InvalidEmailOrPassword {
 		c.JSON(http.StatusUnauthorized, gin.H{
 			"detail": "Invalid credentials",
 		})
@@ -34,15 +33,14 @@ func PostSignIn(c *gin.Context) {
 func PostSignUp(c *gin.Context) {
 	password1 := c.PostForm("password1")
 	password2 := c.PostForm("password2")
-	err := services.PasswordsValidation(password1, password2)
+
+	err := validation.PasswordsValidation(password1, password2)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"detail": err,
 		})
 		return
 	}
-	// TODO: validate data passing to CreateUser
-	// TODO: decide where better to make validation of data
 	var user models.User
 	err = user.Create(
 		c.PostForm("email"),
@@ -65,13 +63,13 @@ func PostSignUp(c *gin.Context) {
 func GetCurrentUserData(c *gin.Context) {
 	token := c.GetHeader("Authorization")
 	user, err := models.GetUserByToken(token)
-	if err == errors.DatabaseNotAvailable {
+	if err == models.DatabaseNotAvailable {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"detail": "Something happened to us, we are already working on it",
 		})
 		return
 	}
-	if err == errors.InvalidToken {
+	if err == models.InvalidToken {
 		c.JSON(http.StatusUnauthorized, gin.H{
 			"detail": "Invalid token",
 		})

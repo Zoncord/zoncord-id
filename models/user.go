@@ -1,8 +1,6 @@
 package models
 
 import (
-	"github.com/Zoncord/zoncord-id/errors"
-	"github.com/Zoncord/zoncord-id/services"
 	"github.com/Zoncord/zoncord-id/validation"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
@@ -33,42 +31,46 @@ func CheckAuth(email string, password string) (User, error) {
 	var user User
 	err := db.First(&user, "email = ?", email).Error
 	if err == gorm.ErrRecordNotFound {
-		return user, errors.InvalidEmailOrPassword
+		return user, InvalidEmailOrPassword
 	}
 
 	if err != nil {
-		return user, errors.DatabaseNotAvailable
+		return user, DatabaseNotAvailable
 	}
 
 	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password))
 	if err != nil {
-		return user, errors.InvalidEmailOrPassword
+		return user, InvalidEmailOrPassword
 	}
 
 	return user, nil
 }
 
 func (u *User) Create(email string, password string, firstName string, lastName string) error {
-	err := services.EmailValidation(email)
+	err := validation.EmailValidation(email)
 	if err != nil {
 		return err
 	}
 	u.Email = email
-	err = services.PasswordValidation(password)
+
+	err = validation.PasswordValidation(password)
 	if err != nil {
 		return err
 	}
 	u.Password = password
-	err = validation.Validate(firstName, validation.SimpleValidation)
+
+	err = validation.FirstNameValidation(firstName)
 	if err != nil {
 		return err
 	}
 	u.FirstName = firstName
-	err = validation.Validate(lastName, validation.SimpleValidation)
+
+	err = validation.LastNameValidation(lastName)
 	if err != nil {
 		return err
 	}
 	u.LastName = lastName
+
 	return nil
 }
 
@@ -77,10 +79,10 @@ func GetUserByToken(token string) (User, error) {
 	var accessToken AccessToken
 	err := db.First(&accessToken, "token = ?", token).Error
 	if err == gorm.ErrRecordNotFound {
-		return user, errors.InvalidToken
+		return user, InvalidToken
 	}
 	if err != nil {
-		return user, errors.DatabaseNotAvailable
+		return user, DatabaseNotAvailable
 	}
 	err = db.First(&user, "id = ?", accessToken.UserID).Error
 	if err != nil {
