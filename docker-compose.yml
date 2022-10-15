@@ -5,10 +5,8 @@ services:
     image: postgres
     volumes:
       - ./data/db:/var/lib/postgresql/data
-    environment:
-      - POSTGRES_DB=zoncord-id
-      - POSTGRES_USER=ZoncordAdmin
-      - POSTGRES_PASSWORD=1
+    env_file:
+      - ./.env
   zoncord-id:
     image: zoncord.azurecr.io/zoncord-id
     restart: always
@@ -16,8 +14,8 @@ services:
       context: .
       dockerfile: Dockerfile
     command: go run main.go
-    expose:
-      - 8080
+    ports:
+      - 8080:8080
     env_file:
       - ./.env
     depends_on:
