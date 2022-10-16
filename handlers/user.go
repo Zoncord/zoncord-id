@@ -2,7 +2,7 @@ package handlers
 
 import (
 	"github.com/Zoncord/zoncord-id/models"
-	"github.com/Zoncord/zoncord-id/validation"
+	"github.com/Zoncord/zoncord-id/services"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
@@ -31,20 +31,10 @@ func PostSignIn(c *gin.Context) {
 }
 
 func PostSignUp(c *gin.Context) {
-	password1 := c.PostForm("password1")
-	password2 := c.PostForm("password2")
-
-	err := validation.PasswordsValidation(password1, password2)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"detail": err,
-		})
-		return
-	}
-	var user models.User
-	err = user.Create(
+	token, err := services.SignUp(
 		c.PostForm("email"),
-		password1,
+		c.PostForm("password1"),
+		c.PostForm("password2"),
 		c.PostForm("first_name"),
 		c.PostForm("last_name"),
 	)
@@ -52,11 +42,11 @@ func PostSignUp(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"detail": err,
 		})
+		return
 	}
-	token, err := models.CreateAccessToken(user, 0, "read write")
 	c.JSON(http.StatusOK, gin.H{
 		"message": "Successful Registration",
-		"token":   token.Token,
+		"token":   token,
 	})
 }
 

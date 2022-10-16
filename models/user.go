@@ -70,7 +70,10 @@ func (u *User) Create(email string, password string, firstName string, lastName 
 		return err
 	}
 	u.LastName = lastName
-
+	u.IsActive = true
+	u.IsSuperUser = false
+	db.Create(&u)
+	db.Save(&u)
 	return nil
 }
 
