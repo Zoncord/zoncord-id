@@ -1,10 +1,11 @@
 package handlers
 
 import (
+	"net/http"
+
 	"github.com/Zoncord/zoncord-id/models"
 	"github.com/Zoncord/zoncord-id/services"
 	"github.com/gin-gonic/gin"
-	"net/http"
 )
 
 func PostSignIn(c *gin.Context) {
@@ -23,7 +24,7 @@ func PostSignIn(c *gin.Context) {
 		})
 		return
 	}
-	token, err := models.CreateAccessToken(user, 0, "read write")
+	token, err := models.CreateAccessToken(user, 1, "read write")
 	c.JSON(http.StatusOK, gin.H{
 		"message": "Successful Login",
 		"token":   token.Token,
@@ -40,7 +41,7 @@ func PostSignUp(c *gin.Context) {
 	)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
-			"detail": err,
+			"detail": err.Error(),
 		})
 		return
 	}

@@ -30,6 +30,6 @@ func SignUp(email, password1, password2, firstName, lastName string) (string, er
 	if err != nil {
 		return "", err
 	}
-	token, err := models.CreateAccessToken(user, 0, "read write")
+	token, err := models.CreateAccessToken(user, 1, "read write")
 	return token.Token, err
 }

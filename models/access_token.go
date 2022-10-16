@@ -1,10 +1,11 @@
 package models
 
 import (
-	"github.com/golang-jwt/jwt/v4"
-	"gorm.io/gorm"
 	"os"
 	"time"
+
+	"github.com/golang-jwt/jwt/v4"
+	"gorm.io/gorm"
 )
 
 type AccessToken struct {
@@ -22,7 +23,7 @@ func CreateAccessToken(user User, applicationID uint, scope string) (AccessToken
 
 	timeToExpire := time.Now().Add(time.Hour * 24)
 	// The expiration time increases since id 0 is the master application
-	if applicationID == 0 {
+	if applicationID == 1 {
 		timeToExpire = time.Now().Add(time.Hour * 8760)
 	}
 

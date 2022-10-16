@@ -1,9 +1,11 @@
 package models
 
 import (
+	"log"
+	"os"
+
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
-	"os"
 )
 
 func MigrateModels(db *gorm.DB) {
@@ -25,6 +27,36 @@ func GetDSN() string {
 	return dsn
 }
 
+func CreateAdmin(db *gorm.DB) {
+	// Create admin user
+	var admin User
+	db.Where("email= ?", os.Getenv("ADMIN_EMAIL")).First(&admin)
+	if admin.ID != 1 {
+		admin = User{
+			Email:    os.Getenv("ADMIN_EMAIL"),
+			Password: os.Getenv("ADMIN_PASSWORD"),
+		}
+		db.Create(&admin)
+		db.Save(&admin)
+	}
+	log.Printf("Admin created ID%d", admin.ID)
+}
+
+func CreateMasterApplication(db *gorm.DB) {
+	// Create master application
+	var masterApp Application
+	db.Where("name = ?", "master").First(&masterApp)
+	if masterApp.ID != 1 {
+		masterApp = Application{
+			Name:   "master",
+			UserID: 1,
+		}
+		db.Create(&masterApp)
+		db.Save(&masterApp)
+	}
+	log.Printf("Master application created ID%d", masterApp.ID)
+}
+
 func InitDB() *gorm.DB {
 	// Init database
 	dsn := GetDSN()
@@ -35,6 +67,8 @@ func InitDB() *gorm.DB {
 
 	// Миграция схем
 	MigrateModels(db)
+	CreateAdmin(db)
+	CreateMasterApplication(db)
 	return db
 }
 
