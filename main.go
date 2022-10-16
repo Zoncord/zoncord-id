@@ -1,6 +1,8 @@
 package main
 
-import "github.com/Zoncord/zoncord-id/routers"
+import (
+	"github.com/Zoncord/zoncord-id/routers"
+)
 
 func main() {
 	r := routers.InitRouters()
