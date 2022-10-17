@@ -2,6 +2,7 @@ package models
 
 import (
 	"github.com/Zoncord/zoncord-id/validation"
+	"go.uber.org/zap"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )
@@ -74,6 +75,7 @@ func (u *User) Create(email string, password string, firstName string, lastName 
 	u.IsSuperUser = false
 	db.Create(&u)
 	db.Save(&u)
+	zap.L().Info("created user")
 	return nil
 }
 

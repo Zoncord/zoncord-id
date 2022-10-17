@@ -1,14 +1,16 @@
 package handlers
 
 import (
-	"net/http"
-
 	"github.com/Zoncord/zoncord-id/models"
 	"github.com/Zoncord/zoncord-id/services"
 	"github.com/gin-gonic/gin"
+	"go.uber.org/zap"
+	"net/http"
 )
 
 func PostSignIn(c *gin.Context) {
+	// TODO remove business logic
+	zap.L().Info("Starting sign in")
 	email := c.PostForm("email")
 	password := c.PostForm("password")
 	user, err := models.CheckAuth(email, password)
@@ -16,22 +18,29 @@ func PostSignIn(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"detail": "Something happened to us, we are already working on it",
 		})
+		zap.L().Error(err.Error())
 		return
 	}
 	if err == models.InvalidEmailOrPassword {
 		c.JSON(http.StatusUnauthorized, gin.H{
 			"detail": "Invalid credentials",
 		})
+		zap.L().Error(err.Error())
 		return
 	}
 	token, err := models.CreateAccessToken(user, 1, "read write")
+	if err != nil {
+		zap.L().Error(err.Error())
+	}
 	c.JSON(http.StatusOK, gin.H{
 		"message": "Successful Login",
 		"token":   token.Token,
 	})
+	zap.L().Info("user successfully signed in")
 }
 
 func PostSignUp(c *gin.Context) {
+	zap.L().Info("starting signing up user")
 	token, err := services.SignUp(
 		c.PostForm("email"),
 		c.PostForm("password1"),
@@ -43,12 +52,14 @@ func PostSignUp(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"detail": err.Error(),
 		})
+		zap.L().Info("Validation error: " + err.Error())
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{
 		"message": "Successful Registration",
 		"token":   token,
 	})
+	zap.L().Info("user successfully signed up")
 }
 
 func GetCurrentUserData(c *gin.Context) {
@@ -72,4 +83,5 @@ func GetCurrentUserData(c *gin.Context) {
 		"first_name": user.FirstName,
 		"last_name":  user.LastName,
 	})
+	zap.L().Info("got user data")
 }

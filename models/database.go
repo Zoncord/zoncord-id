@@ -1,18 +1,24 @@
 package models
 
 import (
-	"log"
-	"os"
-
+	"go.uber.org/zap"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
+	"log"
+	"os"
 )
 
 func MigrateModels(db *gorm.DB) {
 	// user models
-	db.AutoMigrate(&User{})
+	err := db.AutoMigrate(&User{})
+	if err != nil {
+		zap.L().Fatal(err.Error())
+	}
 	// oauth2 models
-	db.AutoMigrate(&Application{}, &Grant{}, &RefreshToken{})
+	err = db.AutoMigrate(&Application{}, &Grant{}, &RefreshToken{})
+	if err != nil {
+		zap.L().Fatal(err.Error())
+	}
 }
 
 func GetDSN() string {
@@ -62,7 +68,7 @@ func InitDB() *gorm.DB {
 	dsn := GetDSN()
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
-		panic("failed to connect database")
+		zap.L().Fatal("Failed to connect database")
 	}
 
 	// Миграция схем
