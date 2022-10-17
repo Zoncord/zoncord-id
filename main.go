@@ -2,7 +2,7 @@ package main
 
 import (
 	"github.com/Zoncord/zoncord-id/routers"
-	"github.com/Zoncord/zoncord-id/units/logger"
+	"github.com/Zoncord/zoncord-id/utils/logger"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 	"os"
