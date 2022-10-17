@@ -19,7 +19,7 @@ func PasswordHasher(password string) string {
 }
 
 func SignUp(email, password1, password2, firstName, lastName string) (string, error) {
-	zap.L().Error("starting sign up")
+	zap.L().Info("starting sign up")
 	err := validation.PasswordsValidation(password1, password2)
 	if err != nil {
 		zap.L().Error(err.Error())
@@ -41,6 +41,6 @@ func SignUp(email, password1, password2, firstName, lastName string) (string, er
 		zap.L().Error(err.Error())
 		return "", err
 	}
-	zap.L().Error("successfully signed up")
+	zap.L().Info("successfully signed up")
 	return token.Token, nil
 }
