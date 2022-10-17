@@ -1,6 +1,9 @@
 package validation
 
-import "regexp"
+import (
+	"go.uber.org/zap"
+	"regexp"
+)
 
 type validationValue struct {
 	title, value string
@@ -118,7 +121,9 @@ func LastNameValidation(value string) error {
 func EmailValidation(email string) error {
 	emailRegex := regexp.MustCompile(`^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$`)
 	if !emailRegex.MatchString(email) {
+		zap.L().Info("Email address isn't walid")
 		return ErrInvalidEmailFormat
 	}
+	zap.L().Info("Email address validated successfully")
 	return nil
 }

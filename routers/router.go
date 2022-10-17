@@ -3,9 +3,11 @@ package routers
 import (
 	"github.com/Zoncord/zoncord-id/handlers"
 	"github.com/gin-gonic/gin"
+	"go.uber.org/zap"
 )
 
 func InitRouters() *gin.Engine {
+	zap.L().Info("init router")
 	r := gin.Default()
 	v1 := r.Group("/v1")
 	{

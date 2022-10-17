@@ -3,6 +3,7 @@ package handlers
 import (
 	"github.com/Zoncord/zoncord-id/models"
 	"github.com/gin-gonic/gin"
+	"go.uber.org/zap"
 	"net/http"
 	"strconv"
 )
@@ -12,6 +13,7 @@ func PostGrant(c *gin.Context) {
 }
 
 func PostAccessToken(c *gin.Context) {
+	zap.L().Error("starting PostAccessToken")
 	clientID, err := strconv.ParseUint(c.PostForm("client_id"), 10, 32)
 	clientID32 := uint(clientID)
 	if err != nil {
@@ -50,7 +52,7 @@ func PostAccessToken(c *gin.Context) {
 			return
 		}
 	}
-
+	zap.L().Error("end PostAccessToken")
 	//return models.CreateAccessToken()
 	//	TODO: return access token
 }
