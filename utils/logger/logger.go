@@ -6,6 +6,7 @@ import (
 )
 
 func InitLogger() error {
+	// creating global logger
 	runningMode := os.Getenv("RUNNING_MODE")
 	var logger *zap.Logger
 	var err error

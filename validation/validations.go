@@ -6,10 +6,12 @@ import (
 )
 
 type validationValue struct {
+	// Class to validate value
 	title, value string
 }
 
 type twoValidationValues struct {
+	// Class to validate two values
 	value1, value2 validationValue
 }
 
@@ -20,18 +22,6 @@ func newPasswordValidationValue(value string) validationValue {
 	}
 }
 
-func newFirstNameValidationValue(value string) validationValue {
-	return validationValue{
-		"first name",
-		value,
-	}
-}
-func newLastNameValidationValue(value string) validationValue {
-	return validationValue{
-		"last name",
-		value,
-	}
-}
 func newTestValidationValue(value string) validationValue {
 	return validationValue{
 		"test value",
@@ -40,6 +30,7 @@ func newTestValidationValue(value string) validationValue {
 }
 
 func CheckRules(validateRules []func() error) error {
+	// Function that checks if validation rules pass
 	for _, rule := range validateRules {
 		output := rule()
 		if output != nil {
@@ -50,6 +41,7 @@ func CheckRules(validateRules []func() error) error {
 }
 
 func SimpleValidationRules(v validationValue) []func() error {
+	// Some validation rules to validate simple strings (names, e.t.c)
 	return []func() error{
 		v.valueExistRule,
 		v.spacesForbiddenRule,
@@ -60,6 +52,7 @@ func SimpleValidationRules(v validationValue) []func() error {
 }
 
 func PasswordValidationRules(v validationValue) []func() error {
+	// Some validation rules to validate password
 	return []func() error{
 		v.valueExistRule,
 		v.spacesForbiddenRule,
@@ -69,33 +62,14 @@ func PasswordValidationRules(v validationValue) []func() error {
 	}
 }
 func PasswordsValidationRules(v twoValidationValues) []func() error {
+	// Validation rule to validate two passwords
 	return []func() error{
 		v.equivalencyRule,
 	}
 }
 
-func PasswordsValidation(password1 string, password2 string) error {
-	// Passwords validation function
-	zap.L().Info("started passwords validation")
-	passwords := twoValidationValues{
-		newPasswordValidationValue(password1),
-		newPasswordValidationValue(password2),
-	}
-	err := CheckRules(PasswordsValidationRules(passwords))
-	if err != nil {
-		zap.L().Info(err.Error())
-		return err
-	}
-
-	err = CheckRules(PasswordValidationRules(passwords.value1))
-	if err != nil {
-		zap.L().Info(err.Error())
-		return err
-	}
-	zap.L().Info("finished passwords validation")
-	return nil
-}
 func PasswordValidation(password string) error {
+	// Function that checks all password rules
 	zap.L().Info("started password validation")
 	val := newPasswordValidationValue(password)
 	err := CheckRules(PasswordValidationRules(val))
@@ -107,26 +81,41 @@ func PasswordValidation(password string) error {
 	return nil
 }
 
-func FirstNameValidation(value string) error {
-	zap.L().Info("started first name validation")
-	val := newFirstNameValidationValue(value)
-	err := CheckRules(SimpleValidationRules(val))
+func PasswordsValidation(password1 string, password2 string) error {
+	// Function that checks all passwords rules
+	zap.L().Info("started passwords validation")
+	passwords := twoValidationValues{
+		newPasswordValidationValue(password1),
+		newPasswordValidationValue(password2),
+	}
+	err := CheckRules(PasswordsValidationRules(passwords))
 	if err != nil {
 		zap.L().Info(err.Error())
 		return err
 	}
-	zap.L().Info("finished first name validation")
+	// after checking PasswordsValidationRules two passwords are equal
+	err = PasswordValidation(password1)
+	if err != nil {
+		zap.L().Info(err.Error())
+		return err
+	}
+	zap.L().Info("finished passwords validation")
 	return nil
 }
-func LastNameValidation(value string) error {
-	zap.L().Info("started last name validation")
-	val := newLastNameValidationValue(value)
+
+func SimpleValidation(title, value string) error {
+	// Function that checks all simple rules to passed value
+	zap.L().Info("started " + title + " validation")
+	var val = validationValue{
+		title,
+		value,
+	}
 	err := CheckRules(SimpleValidationRules(val))
 	if err != nil {
 		zap.L().Info(err.Error())
 		return err
 	}
-	zap.L().Info("finished last name validation")
+	zap.L().Info("finished " + title + " validation")
 	return nil
 }
 

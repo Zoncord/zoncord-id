@@ -28,7 +28,7 @@ type User struct {
 	RefreshTokens []RefreshToken `json:"refresh_token"`
 }
 
-func CheckAuth(email string, password string) (User, error) {
+func CheckAuth(email, password string) (User, error) {
 	var user User
 	err := db.First(&user, "email = ?", email).Error
 	if err == gorm.ErrRecordNotFound {
@@ -47,7 +47,7 @@ func CheckAuth(email string, password string) (User, error) {
 	return user, nil
 }
 
-func (u *User) Create(email string, password string, firstName string, lastName string) error {
+func (u *User) Create(email, password, firstName, lastName string) error {
 	err := validation.EmailValidation(email)
 	if err != nil {
 		return err
@@ -60,13 +60,13 @@ func (u *User) Create(email string, password string, firstName string, lastName 
 	}
 	u.Password = password
 
-	err = validation.FirstNameValidation(firstName)
+	err = validation.SimpleValidation("first name", firstName)
 	if err != nil {
 		return err
 	}
 	u.FirstName = firstName
 
-	err = validation.LastNameValidation(lastName)
+	err = validation.SimpleValidation("last name", lastName)
 	if err != nil {
 		return err
 	}

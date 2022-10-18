@@ -9,32 +9,27 @@ import (
 )
 
 func PostSignIn(c *gin.Context) {
-	// TODO remove business logic
 	zap.L().Info("Starting sign in")
 	email := c.PostForm("email")
 	password := c.PostForm("password")
-	user, err := models.CheckAuth(email, password)
-	if err == models.DatabaseNotAvailable {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"detail": "Something happened to us, we are already working on it",
-		})
-		zap.L().Error(err.Error())
-		return
-	}
-	if err == models.InvalidEmailOrPassword {
-		c.JSON(http.StatusUnauthorized, gin.H{
-			"detail": "Invalid credentials",
-		})
-		zap.L().Error(err.Error())
-		return
-	}
-	token, err := models.CreateAccessToken(user, 1, "read write")
+	accessToken, err := services.SignIn(email, password)
 	if err != nil {
+		if err == models.DatabaseNotAvailable {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"detail": "Something happened to us, we are already working on it",
+			})
+			zap.L().Error(err.Error())
+			return
+		}
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"detail": err.Error(),
+		})
 		zap.L().Error(err.Error())
+		return
 	}
 	c.JSON(http.StatusOK, gin.H{
 		"message": "Successful Login",
-		"token":   token.Token,
+		"token":   accessToken,
 	})
 	zap.L().Info("user successfully signed in")
 }

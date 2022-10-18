@@ -2,7 +2,7 @@ package validation
 
 import (
 	"fmt"
-	"github.com/Zoncord/zoncord-id/services"
+	"github.com/Zoncord/zoncord-id/utils/basic"
 	"math/rand"
 	"os"
 	"testing"
@@ -38,14 +38,14 @@ type testSimpleValidation struct {
 	expected        error
 }
 
-func TestSimpleValidation(t *testing.T) {
+func TestSimpleValidationRule(t *testing.T) {
 	errorsProvider := newTestValidationValue("")
 	var validationValues = []testSimpleValidation{
 		{newTestValidationValue(""), errorsProvider.ErrRequiredValue()},
 		{newTestValidationValue("my name"), errorsProvider.ErrSpacesForbidden()},
 		{newTestValidationValue("my1name"), errorsProvider.ErrNumbersForbidden()},
 		{newTestValidationValue("my$name"), errorsProvider.ErrSpecialCharactersForbidden()},
-		{newTestValidationValue(services.CreateTestString(65)), errorsProvider.ErrValueTooLong()},
+		{newTestValidationValue(basic.CreateTestString(65)), errorsProvider.ErrValueTooLong()},
 	}
 
 	for _, test := range validationValues {
@@ -70,12 +70,12 @@ type testTwoPasswords struct {
 func TestPasswordLengthRule(t *testing.T) {
 	errorsProvider := newPasswordValidationValue("")
 	var tests = []testOnePassword{
-		{services.CreateTestString(0), errorsProvider.ErrRequiredValue()},
-		{services.CreateTestString(9), errorsProvider.ErrValueTooShort()},
-		{services.CreateTestString(10), errorsProvider.numbersRequiredRule()},
-		{services.CreateTestString(63) + "1", nil},
-		{services.CreateTestString(65), errorsProvider.ErrValueTooLong()},
-		{services.CreateTestString(100), errorsProvider.ErrValueTooLong()},
+		{basic.CreateTestString(0), errorsProvider.ErrRequiredValue()},
+		{basic.CreateTestString(9), errorsProvider.ErrValueTooShort()},
+		{basic.CreateTestString(10), errorsProvider.numbersRequiredRule()},
+		{basic.CreateTestString(63) + "1", nil},
+		{basic.CreateTestString(65), errorsProvider.ErrValueTooLong()},
+		{basic.CreateTestString(100), errorsProvider.ErrValueTooLong()},
 	}
 	for _, test := range tests {
 		output := PasswordValidation(test.password)
@@ -104,7 +104,7 @@ func TestPasswordsEquivalencyRule(t *testing.T) {
 
 // testing passwordValidation function
 func TestPasswordValidation(t *testing.T) {
-	longPassword := services.CreateTestString(65)
+	longPassword := basic.CreateTestString(65)
 	errorsProvider := newPasswordValidationValue("")
 	var tests = []testTwoPasswords{
 		{"a", "asdf", ErrPasswordsDontMatch},

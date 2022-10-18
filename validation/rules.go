@@ -14,6 +14,7 @@ func (v *validationValue) minPasswordLengthRule() error {
 	zap.L().Info("finished minPasswordLengthRule")
 	return nil
 }
+
 func (v *validationValue) maxValueLengthRule() error {
 	zap.L().Info("checking maxValueLengthRule")
 	if len([]rune(v.value)) > MaxStringLength {
@@ -37,15 +38,9 @@ func (v *validationValue) valueExistRule() error {
 func (v *validationValue) spacesForbiddenRule() error {
 	zap.L().Info("checking spacesForbiddenRule")
 	for _, character := range v.value {
-		if character == ' ' {
+		if character == ' ' || character == '\t' || character == '\n' {
 			zap.L().Info(v.ErrSpacesForbidden().Error())
 			return v.ErrSpacesForbidden()
-		}
-		if character == '\t' {
-			// TODO make error handling
-		}
-		if character == '\n' {
-			// TODO make error handling
 		}
 	}
 	zap.L().Info("finished spacesForbiddenRule")
@@ -74,6 +69,7 @@ func (v *validationValue) numbersRequiredRule() error {
 	zap.L().Info(v.ErrValueMustIncludeNumber().Error())
 	return v.ErrValueMustIncludeNumber()
 }
+
 func (v *validationValue) specialCharactersForbiddenRule() error {
 	zap.L().Info("Checking specialCharactersForbiddenRule")
 	for _, letter := range v.value {
