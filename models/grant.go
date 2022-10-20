@@ -1,10 +1,11 @@
 package models
 
 import (
-	"fmt"
-	"github.com/jinzhu/gorm"
 	"strings"
 	"time"
+
+	"github.com/jinzhu/gorm"
+	"go.uber.org/zap"
 )
 
 type Grant struct {
@@ -17,22 +18,22 @@ type Grant struct {
 	Scope         string    `json:"scope"`
 }
 
-func CheckCode(code string, clientID uint, clientSecret string, redirectURI string) error {
-	// validation of code
-	application, err := checkApplication(clientID, clientSecret)
-	if err != nil {
-		return err
-	}
+func GetUserIDFromCode(applicationID uint, code string, redirectUri string) (uint, error) {
+	// check if code is valid
 	var grant Grant
-	grant.Code = code
-	grant.ApplicationID = application.ID
-	err = db.First(&grant).Error
-	if err != nil {
-		return err
+	err := db.First("application_id = ? AND code = ?", applicationID, code).Error
+	if err == gorm.ErrRecordNotFound {
+		return 0, ErrInvalidGrant
 	}
-	if strings.Contains(grant.RedirectUri, redirectURI) {
-		return fmt.Errorf("redirect_uri is not valid")
+	if err != nil {
+		zap.L().Error("Error while checking code", zap.Error(err))
+		return 0, ErrInternalServerError
 	}
 
-	return nil
+	// check if redirect_uri is valid
+	if strings.Contains(grant.RedirectUri, redirectUri) {
+		return 0, ErrInvalidRedirectUri
+	}
+
+	return grant.UserID, nil
 }

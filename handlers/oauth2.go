@@ -1,11 +1,12 @@
 package handlers
 
 import (
-	"github.com/Zoncord/zoncord-id/models"
+	"net/http"
+
+	"github.com/Zoncord/zoncord-id/deserialization"
+	"github.com/Zoncord/zoncord-id/services"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
-	"net/http"
-	"strconv"
 )
 
 func PostGrant(c *gin.Context) {
@@ -13,46 +14,26 @@ func PostGrant(c *gin.Context) {
 }
 
 func PostAccessToken(c *gin.Context) {
-	zap.L().Error("starting PostAccessToken")
-	clientID, err := strconv.ParseUint(c.PostForm("client_id"), 10, 32)
-	clientID32 := uint(clientID)
+	// data validation and deserialization
+	authorizationData := deserialization.AccessTokenBody{}
+	err := c.ShouldBindJSON(&authorizationData)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"detail": "Invalid client_id",
-		})
-	}
-	clientSecret := c.PostForm("client_secret")
-	redirectURI := c.PostForm("redirect_uri")
-	grantType := c.PostForm("grant_type")
-	if (grantType != "authorization_code") && (grantType != "refresh_token") {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"detail": "Invalid grant type",
-		})
+		// detailed output of validation errors
+		errs := deserialization.GetDetailedErrors(err)
+		c.JSON(http.StatusBadRequest, gin.H{"error": errs})
+		zap.L().Warn("validation failed", zap.Any("authorizationData", authorizationData), zap.Any("errors", errs))
 		return
 	}
+	zap.L().Info("validation successful", zap.Any("authorizationData", authorizationData))
 
-	if grantType == "authorization_code" {
-		code := c.PostForm("code")
-		err := models.CheckCode(code, clientID32, clientSecret, redirectURI)
-		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{
-				"detail": "Invalid code",
-			})
-			return
-		}
+	// business logic execution
+	accessToken, err := services.GetAccessToken(&authorizationData)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
 	}
-
-	if grantType == "refresh_token" {
-		refreshToken := c.PostForm("refresh_token")
-		err := models.CheckRefreshToken(refreshToken, clientID32, clientSecret, redirectURI)
-		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{
-				"detail": "Invalid refresh token",
-			})
-			return
-		}
-	}
-	zap.L().Error("end PostAccessToken")
-	//return models.CreateAccessToken()
-	//	TODO: return access token
+	c.JSON(http.StatusOK, gin.H{
+		"detail":       "token successfully granted",
+		"access_token": accessToken,
+	})
 }

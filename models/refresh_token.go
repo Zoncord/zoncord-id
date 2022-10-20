@@ -1,62 +1,59 @@
 package models
 
 import (
-	"fmt"
+	"os"
+	"time"
+
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/jinzhu/gorm"
-	"os"
-	"strings"
-	"time"
+	"go.uber.org/zap"
 )
 
 type RefreshToken struct {
 	gorm.Model
-	UserID        uint      `json:"user_id"`
-	ApplicationID uint      `json:"application_id"`
-	Token         string    `json:"token"`
-	AccessTokenID uint      `json:"access_token"`
-	Revoked       time.Time `json:"revoked"`
-	RedirectUri   string    `json:"redirect_uri"`
+	UserID        uint
+	ApplicationID uint
+	Token         string
+	AccessTokenID uint
+	Revoked       time.Time
 }
 
-func CreateRefreshToken(userID uint, applicationID uint, accessTokenID uint) (RefreshToken, error) {
-	// TODO проверка на валидность параметров
-
+func CreateRefreshToken(userID uint, applicationID uint) (RefreshToken, error) {
+	// create refresh token
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"user_id":         userID,
-		"access_token_id": accessTokenID,
+		"user_id":        userID,
+		"application_id": applicationID,
+		"created_at":     time.Now().Unix(),
 	})
 
 	// Sign and get the complete encoded token as a string using the secret
 	hmacSampleSecret := os.Getenv("JWT_SECRET")
 	tokenString, err := token.SignedString(hmacSampleSecret)
 
+	if err != nil {
+		zap.L().Error("Error while signing refresh token", zap.Error(err))
+		return RefreshToken{}, ErrInternalServerError
+	}
+
 	refreshToken := RefreshToken{
 		UserID:        userID,
 		ApplicationID: applicationID,
 		Token:         tokenString,
-		AccessTokenID: accessTokenID,
 	}
-	err = db.Create(&refreshToken).Error
-	return refreshToken, err
+
+	return refreshToken, nil
 }
 
-func CheckRefreshToken(Token string, clientID uint, clientSecret string, redirectURI string) error {
-	// TODO: проверка кода на валидность
-	application, err := checkApplication(clientID, clientSecret)
-	if err != nil {
-		return err
+func GetRefreshToken(applicationID uint, refreshToken string) (RefreshToken, error) {
+	var token RefreshToken
+	err := db.First("application_id = ? AND token = ?", applicationID, refreshToken).Error
+	if err == gorm.ErrRecordNotFound {
+		return RefreshToken{}, ErrInvalidGrant
 	}
-	var refreshToken RefreshToken
-	refreshToken.Token = Token
-	refreshToken.ApplicationID = application.ID
-	err = db.First(&refreshToken).Error
 	if err != nil {
-		return err
-	}
-	if strings.Contains(refreshToken.RedirectUri, redirectURI) {
-		return fmt.Errorf("redirect_uri is not valid")
+		zap.L().Error("Error while getting refresh token", zap.Error(err))
+		return RefreshToken{}, ErrInternalServerError
 	}
 
-	return nil
+	return token, nil
 }
