@@ -4,6 +4,7 @@ import "fmt"
 
 var (
 	InvalidEmailOrPassword = fmt.Errorf("invalid login or password")
+	ErrInvalidToken        = fmt.Errorf("invalid token")
 	ErrInvalidCredentials  = fmt.Errorf("invalid credentials")
 	ErrDatabaseNotAvaible  = fmt.Errorf("database not avaible")
 	ErrInternalServerError = fmt.Errorf("internal server error")

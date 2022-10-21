@@ -5,6 +5,22 @@ import (
 	"github.com/Zoncord/zoncord-id/models"
 )
 
+func GetCode(codeBody *deserialization.GrantBody) (string, error) {
+	// check user credentials
+	userID, err := models.GetUserIDByAccessToken(codeBody.Token)
+	if err != nil {
+		return "", err
+	}
+	// check if application and redirectUri is valid
+	applicaionID, err := models.GetApplicationIDByClientID(codeBody.ClientID, codeBody.RedirectUri)
+	if err != nil {
+		return "", err
+	}
+	// create grant
+	code, err := models.CreateGrant(userID, applicaionID, codeBody.RedirectUri, "read write openid")
+	return code, err
+}
+
 func GetAccessToken(accessTokenBody *deserialization.AccessTokenBody) (string, error) {
 	// check if application is valid
 	applicationID, err := models.GetApplicationIDByCredentials(accessTokenBody.ClientID, accessTokenBody.ClientSecret)
@@ -17,7 +33,16 @@ func GetAccessToken(accessTokenBody *deserialization.AccessTokenBody) (string, e
 		if err != nil {
 			return "", err
 		}
+		// delete grant
+		err = models.DeleteGrant(accessTokenBody.Code)
+		if err != nil {
+			return "", err
+		}
+		// create access token
 		refreshToken, err := models.CreateRefreshToken(userID, applicationID)
+		if err != nil {
+			return "", err
+		}
 		accessToken, err := models.CreateAccessTokenInDB(userID, applicationID, "read write openid", refreshToken)
 		if err != nil {
 			return "", err
@@ -26,7 +51,7 @@ func GetAccessToken(accessTokenBody *deserialization.AccessTokenBody) (string, e
 	}
 	if accessTokenBody.GrantType == "refresh_token" {
 		// getting the token object and checking its validiry
-		refreshToken, err := models.GetRefreshToken(accessTokenBody.RefreshToken)
+		refreshToken, err := models.GetRefreshToken(applicationID, accessTokenBody.RefreshToken)
 		if err != nil {
 			return "", err
 		}

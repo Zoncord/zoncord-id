@@ -1,6 +1,8 @@
 package models
 
 import (
+	"time"
+
 	"github.com/Zoncord/zoncord-id/validation"
 	"go.uber.org/zap"
 	"golang.org/x/crypto/bcrypt"
@@ -14,10 +16,12 @@ type User struct {
 	Email    string `json:"email"`
 	Password string `json:"password"`
 	// personal info
-	FirstName  string `json:"first_name"`
-	LastName   string `json:"last_name"`
-	MiddleName string `json:"middle_name"`
-	Phone      string `json:"phone"`
+	FirstName  string    `json:"first_name"`
+	LastName   string    `json:"last_name"`
+	MiddleName string    `json:"middle_name"`
+	Phone      string    `json:"phone"`
+	BirthDate  time.Time `json:"birth_date"`
+	Gender     string
 	// auth info
 	IsActive    bool `json:"is_active"`
 	IsSuperUser bool `json:"is_superuser"`

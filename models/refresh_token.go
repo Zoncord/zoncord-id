@@ -1,6 +1,7 @@
 package models
 
 import (
+	"errors"
 	"os"
 	"time"
 
@@ -27,7 +28,7 @@ func CreateRefreshToken(userID uint, applicationID uint) (RefreshToken, error) {
 	})
 
 	// Sign and get the complete encoded token as a string using the secret
-	hmacSampleSecret := os.Getenv("JWT_SECRET")
+	hmacSampleSecret := []byte(os.Getenv("JWT_SECRET"))
 	tokenString, err := token.SignedString(hmacSampleSecret)
 
 	if err != nil {
@@ -47,7 +48,7 @@ func CreateRefreshToken(userID uint, applicationID uint) (RefreshToken, error) {
 func GetRefreshToken(applicationID uint, refreshToken string) (RefreshToken, error) {
 	var token RefreshToken
 	err := db.First("application_id = ? AND token = ?", applicationID, refreshToken).Error
-	if err == gorm.ErrRecordNotFound {
+	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return RefreshToken{}, ErrInvalidGrant
 	}
 	if err != nil {

@@ -1,11 +1,13 @@
 package models
 
 import (
+	"errors"
 	"os"
 	"time"
 
 	"github.com/golang-jwt/jwt/v4"
 	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 )
 
 type AccessToken struct {
@@ -33,7 +35,7 @@ func CreateAccessToken(userID uint, applicationID uint, scope string) (AccessTok
 	})
 
 	// Sign and get the complete encoded token as a string using the secret
-	hmacSampleSecret := os.Getenv("JWT_SECRET")
+	hmacSampleSecret := []byte(os.Getenv("JWT_SECRET"))
 	tokenString, err := token.SignedString(hmacSampleSecret)
 	accessToken := AccessToken{
 		UserID:        userID,
@@ -60,4 +62,16 @@ func CreateAccessTokenInDB(userID uint, applicationID uint, scope string, refres
 		return "", err
 	}
 	return accessToken.Token, nil
+}
+
+func GetUserIDByAccessToken(token string) (uint, error) {
+	var accessToken AccessToken
+	err := db.Where("token = ?", token).First(&accessToken).Error
+	if errors.Is(err, logger.ErrRecordNotFound) {
+		return 0, ErrInvalidCredentials
+	}
+	if err != nil {
+		return 0, ErrInternalServerError
+	}
+	return accessToken.UserID, err
 }

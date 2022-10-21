@@ -40,7 +40,8 @@ func InitRouters() *gin.Engine {
 
 		oauth2 := v1.Group("/o")
 		{
-			oauth2.POST("", handlers.PostAccessToken)
+			oauth2.POST("/token", handlers.PostAccessToken)
+			oauth2.POST("/authorize", handlers.PostAuthorize)
 		}
 	}
 	return r
