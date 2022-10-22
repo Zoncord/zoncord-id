@@ -1,10 +1,17 @@
 package models
 
-import "github.com/jinzhu/gorm"
+import (
+	"errors"
+	"strings"
+
+	"github.com/jinzhu/gorm"
+	"go.uber.org/zap"
+	"gorm.io/gorm/logger"
+)
 
 type Application struct {
 	gorm.Model
-	ClientId     uint   `json:"client_id"`
+	ClientId     string `json:"client_id"`
 	ClientSecret string `json:"client_secret"`
 
 	UserID uint   `json:"user_id"`
@@ -22,13 +29,34 @@ type Application struct {
 	Grants        []Grant        `json:"grants"`
 }
 
-func checkApplication(clientID uint, clientSecret string) (Application, error) {
+func GetApplicationIDByCredentials(clientID string, clientSecret string) (uint, error) {
+	// check if application exists
 	var application Application
-	application.ClientId = clientID
-	application.ClientSecret = clientSecret
-	err := db.First(&application).Error
-	if err != nil && err != gorm.ErrRecordNotFound {
-		return application, err
+	err := db.Where("client_id = ? AND client_secret = ?", clientID, clientSecret).First(&application).Error
+	if errors.Is(err, logger.ErrRecordNotFound) {
+		return 0, ErrInvalidCredentials
 	}
-	return application, nil
+	if err != nil {
+		zap.L().Error("Error while getting application by credentials", zap.Error(err))
+		return 0, ErrInternalServerError
+	}
+	return application.ID, nil
+}
+
+func GetApplicationIDByClientID(clientID string, redirectUri string) (uint, error) {
+	// check if application exists
+	var application Application
+	err := db.Where("client_id = ?", clientID).First(&application).Error
+	if errors.Is(err, logger.ErrRecordNotFound) {
+		return 0, ErrInvalidCredentials
+	}
+	if err != nil {
+		zap.L().Error("Error while getting application by clientID", zap.Error(err))
+		return 0, ErrInternalServerError
+	}
+	// check if redirectUri is valid
+	if !strings.Contains(application.RedirectUris, redirectUri) {
+		return 0, ErrInvalidRedirectUri
+	}
+	return application.ID, nil
 }

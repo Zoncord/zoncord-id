@@ -1,8 +1,9 @@
 package logging
 
 import (
-	"go.uber.org/zap"
 	"os"
+
+	"go.uber.org/zap"
 )
 
 func InitLogger() error {

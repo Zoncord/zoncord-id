@@ -37,6 +37,12 @@ func InitRouters() *gin.Engine {
 			user.DELETE("", handlers.MethodNotAllowed)
 			user.PATCH("", handlers.MethodNotAllowed)
 		}
+
+		oauth2 := v1.Group("/o")
+		{
+			oauth2.POST("/token", handlers.PostAccessToken)
+			oauth2.POST("/authorize", handlers.PostAuthorize)
+		}
 	}
 	return r
 }

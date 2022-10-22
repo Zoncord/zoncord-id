@@ -36,7 +36,7 @@ func SignUp(email, password1, password2, firstName, lastName string) (string, er
 		zap.L().Error(err.Error())
 		return "", err
 	}
-	token, err := models.CreateAccessToken(user, 1, "read write")
+	token, err := models.CreateAccessToken(user.ID, 1, "read write")
 	if err != nil {
 		zap.L().Error(err.Error())
 		return "", err

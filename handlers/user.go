@@ -1,11 +1,12 @@
 package handlers
 
 import (
+	"net/http"
+
 	"github.com/Zoncord/zoncord-id/models"
 	"github.com/Zoncord/zoncord-id/services"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
-	"net/http"
 )
 
 func PostSignIn(c *gin.Context) {
@@ -28,7 +29,7 @@ func PostSignIn(c *gin.Context) {
 		zap.L().Error(err.Error())
 		return
 	}
-	token, err := models.CreateAccessToken(user, 1, "read write")
+	token, err := models.CreateAccessToken(user.ID, 1, "read write")
 	if err != nil {
 		zap.L().Error(err.Error())
 	}
