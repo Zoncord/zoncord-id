@@ -1,8 +1,8 @@
 package services
 
 import (
-	"github.com/Zoncord/zoncord-id/deserialization"
-	"github.com/Zoncord/zoncord-id/models"
+	"github.com/Zoncord/zoncord-id/pkg/deserialization"
+	"github.com/Zoncord/zoncord-id/pkg/models"
 )
 
 func GetCode(codeBody *deserialization.GrantBody) (string, error) {

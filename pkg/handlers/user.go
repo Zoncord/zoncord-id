@@ -3,8 +3,8 @@ package handlers
 import (
 	"net/http"
 
-	"github.com/Zoncord/zoncord-id/models"
-	"github.com/Zoncord/zoncord-id/services"
+	"github.com/Zoncord/zoncord-id/pkg/models"
+	"github.com/Zoncord/zoncord-id/pkg/services"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 )

@@ -1,11 +1,12 @@
 package main
 
 import (
-	"github.com/Zoncord/zoncord-id/routers"
-	"github.com/Zoncord/zoncord-id/utils/logger"
+	"os"
+
+	"github.com/Zoncord/zoncord-id/pkg/routers"
+	"github.com/Zoncord/zoncord-id/pkg/utils/logger"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
-	"os"
 )
 
 func initGin() {
@@ -22,7 +23,7 @@ func initGin() {
 func main() {
 	zap.L().Info("work started")
 	initGin()
-	err := logging.InitLogger()
+	err := logger.InitLogger()
 	if err != nil {
 		panic(err)
 	}

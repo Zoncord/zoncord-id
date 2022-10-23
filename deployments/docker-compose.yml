@@ -18,9 +18,9 @@ services:
     image: zoncord.azurecr.io/zoncord-id
     restart: always
     build:
-      context: .
-      dockerfile: Dockerfile
-    command: go run main.go
+      context: ../.
+      dockerfile: ./build/Dockerfile
+    command: go run cmd/main.go
     ports:
       - 8080:8080
     env_file:

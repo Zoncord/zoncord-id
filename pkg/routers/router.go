@@ -1,7 +1,7 @@
 package routers
 
 import (
-	"github.com/Zoncord/zoncord-id/handlers"
+	"github.com/Zoncord/zoncord-id/pkg/handlers"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 )

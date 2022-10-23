@@ -3,7 +3,7 @@ package models
 import (
 	"time"
 
-	"github.com/Zoncord/zoncord-id/validation"
+	"github.com/Zoncord/zoncord-id/pkg/validation"
 	"go.uber.org/zap"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
